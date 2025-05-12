@@ -1,84 +1,183 @@
-# Controlflow-and-Dataflow-in-LLMs
-## Objective: 
-1.Preparation of datasets for testing control flow and data flow capabilities of LLMs
-2.Evaluation of LLMs for their control flow and data flow capabilities 
+# Control Flow and Data Flow in Large Language Models (LLMs)
+This repository contains research conducted during an internship at the AI Institute of South Carolina, focusing on evaluating LLMs' capabilities in handling control flow and data flow tasks. The work involved creating specialized datasets and developing evaluation frameworks to assess how well different language models can understand and process procedural information.
 
-## Methods: 
-First we prepared datasets using wikihow data
-wikihow dataset ( hereafter in pt1 referred to as original dataset): https://github.com/HiDhineshRaja/WikiHow-Dataset?tab=readme-ov-file  
-Procedure to get ground truth dataset and control flow dataset from it original dataset: 
-- Dropped column 3
-- Sort a large CSV file based on the 'title' column using chunking for memory efficiency.
-- Filter CSV rows to keep only those ending with numbers 1-8
-- Filtered rows that were inconsistent in: grammar, meaning or structure explained in readme of repository. 
-- Filter dataset to keep only tasks with more than 2 steps.
-- Restructure WikiHow data to create columns for each step.(changed structure of earlier csv file to get the csv file that would be appropriate for out objective )
-- Gives ground truth dataset (wikihowAll-5-dataset before jumbling.csv)
-- Randomly shuffle the steps for each task while maintaining task names gives control flow dataset (control_flow_dataset.csv)
+The research demonstrates that while LLMs have made impressive advances in many natural language tasks, their ability to follow procedural instructions correctly and track information flow between steps remains a challenging area that requires specialized evaluation frameworks and targeted datasets.
 
-Code: Attached
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Objectives](#objectives)
+- [Methodology](#methodology)
+  - [Dataset Preparation: WikiHow](#dataset-preparation-wikihow)
+  - [Dataset Preparation: Recipes](#dataset-preparation-recipes)
+  - [Evaluation Framework](#evaluation-framework)
+- [Repository Structure](#repository-structure)
+- [Installation and Usage](#installation-and-usage)
+- [Results and Key Findings](#results-and-key-findings)
+- [Contributions](#contributions)
+- [Acknowledgments](#acknowledgments)
 
-Ground Truth Dataset: Attached
+## Project Overview
+Control flow and data flow understanding are two fundamental capabilities required for LLMs to successfully perform complex, multi-step tasks that involve procedural knowledge:
 
-Benchmark Control Flow Dataset: Attached
+- **Control Flow**: The ability of a model to understand and follow a sequence of steps in the correct order (procedural knowledge).
+- **Data Flow**: The capability to track how information passes between steps and how variables change throughout a process.
+
+This research developed specialized datasets and evaluation frameworks to test these capabilities in various LLMs, with a particular focus on creating benchmarks that can help improve model performance on tasks requiring sequential reasoning.
+## Objectives
+1. Preparation of high-quality datasets for benchmarking control flow and data flow capabilities in LLMs
+2. Evaluation of LLMs for their control flow and data flow understanding
+3. Development of evaluation methodologies to assess how well LLMs can:
+   - Follow sequential instructions in the correct order
+   - Track information transfer between steps and maintain variable state
+4. Implementation of testing frameworks to quantitatively measure LLM performance
+
+## Methodology
+### Dataset Preparation: WikiHow
+The first phase involved creating a control flow dataset from WikiHow instructions:
+
+1. Started with the [WikiHow Dataset](https://github.com/HiDhineshRaja/WikiHow-Dataset)
+2. Applied preprocessing steps
+3. Created two datasets:
+- Ground truth dataset: "wikihowAll-5-dataset before jumbling.csv"
+- Control flow benchmark: "control_flow_dataset.csv" (with randomly shuffled steps)
+
+The WikiHow dataset presented challenges due to complex steps and inconsistent notations, which motivated the creation of a second dataset with cleaner structure.
+
+### Dataset Preparation: Recipes
+To address limitations in the WikiHow dataset, a recipe dataset was adopted:
+
+1. Selected from Kaggle: [Recipe Dataset](https://www.kaggle.com/datasets/mayankkurta/recipe-dataset) 
+2. Key advantages:
+- Simple, clear procedural steps
+- 9,997 entries
+- MIT license
+- Consistent formatting
+3. Preprocessing workflow
+4. Created three datasets:
+- Ground truth: "recipes_final.csv"
+- Control flow benchmark: "controlflow_recipies.csv" (shuffled steps)
+- Data flow benchmark: "dataflow_recipies.csv" (steps replaced with ones from different categories)
+
+### Evaluation Framework
+The evaluation approach tests LLMs' ability to identify correct procedural sequences:
+
+1. Multiple-choice prompts present models with the correct sequence and distractor options
+2. Implementation using Ollama framework for model inference
+3. Key functions:
+4. def load_steps_from_row(row, prefix="step-"):
+- """Extracts non-empty steps from row"""
+steps = []
+for col in sorted(row.index):
+if col.startswith(prefix):
+cell = str(row[col]).strip()
+# Skip if empty or just a placeholder (like NaN)
+if cell and cell.lower() != "nan":
+steps.append(cell)
+return steps
+
+- def generate_distractor(correct_steps, num_distractors=3):
+"""Generates list of distractor sequences by shuffling the correct sequence"""
+distractors = []
+for _ in range(num_distractors):
+shuffled = correct_steps.copy()
+# Reshuffle until it is not the same as the correct order
+while True:
+random.shuffle(shuffled)
+if shuffled != correct_steps:
+break
+distractors.append("; ".join(shuffled))
+return distractors
+4. Evaluation metrics:
+- Accuracy: percentage of correct sequence identifications
+- Error analysis: patterns in model mistakes
+
+This framework provides a standardized approach for comparing different LLM architectures on their procedural reasoning capabilities.
+
+## Repository Structure
+├── Evaluation Code <br>
+│ ├── controlflow_dataflow_Gemma3.ipynb # Evaluation code for Gemma3<br>
+│ └── readme.txt # Documentation for evaluation code<br>
+│<br>
+├── Recipes Dataset<br>
+│ ├── code.ipynb # Data processing code<br>
+│ ├── controlflow_recipies.csv # Control flow benchmark<br>
+│ ├── dataflow_recipies.csv # Data flow benchmark<br>
+│ ├── recipes_final.csv # Ground truth dataset<br>
+│ └── readme.txt # Dataset documentation<br>
+│<br>
+├── wikiHow Dataset<br>
+│ ├── code.ipynb # Data processing code<br>
+│ ├── control_flow_dataset.csv # Control flow benchmark<br>
+│ ├── wikihowAll-5-dataset before ju... # Ground truth dataset<br>
+│ └── readme.txt # Dataset documentation<br>
+│<br>
+├── LICENSE # MIT License<br>
+└── README.md # Project documentation<br>
 
 
-The steps in these datasets were complex, and the lack of consistent notations made it challenging to simplify them. To improve the evaluation of LLMs, the focus was shifted to a specific category, and a cleaner dataset was sought that would provide simpler and clearer steps, be more consistent in length and support better testing.
+## Installation and Usage
+### Prerequisites
+- Python 3.8+
+- pandas
+- re (regular expressions)
+- Ollama (for model inference)
 
-Why this dataset was choosen:
-- steps are simple enough
-- no of entries: 9997
-- license : MIT
-- https://www.kaggle.com/datasets/mayankkurta/recipe-dataset ( hereafter in pt3 referred to as original dataset)
+### Setup
+- Clone the repository<br>
+git clone https://github.com/yourusername/Controlflow-and-Dataflow-in-LLMs.git<br>
+cd Controlflow-and-Dataflow-in-LLMs<br>
 
-Procedure to get ground truth dataset, control flow dataset and data flow dataset from original dataset: 
-- Columns ‘Name’ and ‘RecipeInstructions’ were chosen from original dataset
-- Manually modify few cells 
-- Clean and extract steps from the RecipeInstructions column
-- Process each row to extract steps(ground truth: recipes_final.csv)
-- Create a new dataframe with the same column names
-- Keep the 'Name' column the same
-- For each row, shuffle the step columns(control flow: controlflow_recipies.csv)
-- Categorize each recipe
-- For each step to replace, find a random step from a different category(data flow: dataflow_recipies.csv)
+- Install required packages<br>
+pip install pandas<br>
+
+- Install Ollama following instructions at https://ollama.ai/ <br>
 
 
+## Results and Key Findings
+The research provides several insights into LLMs' procedural reasoning capabilities:
+
+1. **Control Flow Understanding**:
+   - Models struggle more with longer procedural sequences
+   - Performance varies significantly between model architectures
+   - Specific procedural patterns cause consistent difficulties
+
+2. **Data Flow Challenges**:
+   - Tracking variable state changes remains difficult for most models
+   - Models often fail to maintain consistency when information must be carried through multiple steps
+
+3. **Future Directions**:
+   - Developing specialized pre-training tasks for procedural reasoning
+   - Creating more diverse benchmarks across domains
+   - Exploring hybrid approaches that combine symbolic reasoning with neural language models
+
+## Contributions
+As highlighted in the recommendation letter from Prof. Amit Sheth:
+
+1. **Creation and Curation of Control Flow and Data Flow Datasets**
+   - Independently sourced and curated high-quality datasets
+   - Developed structured datasets from recipe repositories with clear step dependencies
+   - Formatted datasets for compatibility with LLM analysis tools
+
+2. **Development of Analysis Code for LLM Workflows**
+   - Implemented Python code using the Ollama framework
+   - Generated step dependency graphs and tracked variable states
+   - Provided statistical analysis of control and data flow consistency
+
+3. **Collaborative Problem Solving and Initiative**
+   - Proactively identified and addressed dataset quality issues
+   - Maintained consistent communication with the research team
+   - Demonstrated adaptability by responding to evolving project requirements
+
+4. **Engagement with Research Community**
+   - Regularly attended AI Institute meetings from September 2024 onward
+   - Maintained detailed documentation and organized GitHub repository
+
+## Acknowledgments
+- **Prof. Amit Sheth** - Supervisor, AI Institute of South Carolina
+- **Vishal Pallaghani** - PhD student mentor
+- **AI Institute of South Carolina** - For providing research infrastructure and support
+
+This research contributes to the growing body of work on evaluating and improving procedural reasoning in large language models, addressing fundamental capabilities needed for real-world applications.
 
 
-Code to get preferred ground truth dataset from it: attached
-ground truth dataset from it: attached
-benchmark control flow dataset : attached
-benchmark data flow dataset : attached
 
-### Code for testing it using Gemma3 : Attached
-Explanation: 
-- Evaluates a language model's ability to understand procedural sequences in recipes
-- Tests if the model can identify the correct order of steps when presented with multiple choices
-- Creates a control flow evaluation framework for language models using recipe steps
-
-- Extracts recipe steps from dataframe rows
-- Filters out empty or NaN values
-- Processes steps with a specified prefix (default "step-")
-- Creates incorrect sequences as distractors
-- Shuffles the correct steps randomly
-- Ensures distractors differ from the correct sequence
-- Formats distractors as semicolon-separated strings
-- Creates multiple-choice prompts for evaluation
-- Formats the correct sequence and distractors as options (Prompt Construction)
-- Randomizes option order for unbiased testing
-- query_llm: Interfaces with the language model
-- Uses Ollama for model inference (Model Interaction)
-- Handles errors and returns model's response
-- Converts response to lowercase for consistent matching
-- Evaluation System
-
-Procedure:
-- Loads recipe data from two CSV files:
-- Ground truth file with correct sequences
-- Jumbled file with alternative step orders
-- Processes recipes and evaluates model performance
-- Reports overall accuracy on control flow understanding
-
-Can be extended to compare multiple language models
-
-Due to computational limitations LLM evaluations will be updated later
