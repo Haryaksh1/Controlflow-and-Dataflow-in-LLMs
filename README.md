@@ -124,7 +124,7 @@ This framework provides a standardized approach for comparing different LLM arch
 
 ### Setup
 - Clone the repository<br>
-git clone https://github.com/yourusername/Controlflow-and-Dataflow-in-LLMs.git<br>
+git clone https://github.com/Haryaksh1/Controlflow-and-Dataflow-in-LLMs<br>
 cd Controlflow-and-Dataflow-in-LLMs<br>
 
 - Install required packages<br>
