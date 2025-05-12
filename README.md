@@ -70,7 +70,7 @@ steps = []
 for col in sorted(row.index):
 if col.startswith(prefix):
 cell = str(row[col]).strip()
-# Skip if empty or just a placeholder (like NaN)
+
 if cell and cell.lower() != "nan":
 steps.append(cell)
 return steps
