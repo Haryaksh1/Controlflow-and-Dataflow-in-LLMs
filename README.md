@@ -80,7 +80,7 @@ return steps
 distractors = []
 for _ in range(num_distractors):
 shuffled = correct_steps.copy()
-# Reshuffle until it is not the same as the correct order
+
 while True:
 random.shuffle(shuffled)
 if shuffled != correct_steps:
