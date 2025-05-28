@@ -54,7 +54,7 @@ To address limitations in the WikiHow dataset, a recipe dataset was adopted:
 - Consistent formatting
 3. Preprocessing workflow
 4. Created three datasets:
-- Ground truth: "recipes_final.csv"
+- Ground truth: "recipes_correct_steps.csv"
 - Control flow benchmark: "controlflow_recipies.csv" (shuffled steps)
 - Data flow benchmark: "dataflow_recipies.csv" (steps replaced with ones from different categories)
 
@@ -102,7 +102,7 @@ This framework provides a standardized approach for comparing different LLM arch
 │ ├── code.ipynb # Data processing code<br>
 │ ├── controlflow_recipies.csv # Control flow benchmark<br>
 │ ├── dataflow_recipies.csv # Data flow benchmark<br>
-│ ├── recipes_final.csv # Ground truth dataset<br>
+│ ├── recipes_correct_steps.csv # Ground truth dataset<br>
 │ └── readme.txt # Dataset documentation<br>
 │<br>
 ├── wikiHow Dataset<br>
